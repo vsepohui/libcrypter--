@@ -9,6 +9,7 @@ class Crypter {
 		std::string crypt(std::string input);
 		std::string uncrypt(std::string input);
 		void reset();
+		~Crypter();
 	private:
 		std::string password;
 		Random ** random;
@@ -28,6 +29,12 @@ Crypter::Crypter(std::string password) {
 	this->obfuscate = 0;
 	this->uncrypt_obfuscate_overstep = 0;
 	this->init_randoms_by_password();
+}
+
+Crypter::~Crypter() {
+	for (int i = 0 ; i < this->random_number ; i ++) {
+		free(&(this->random[i]));
+	}
 }
 
 
