@@ -66,6 +66,7 @@ void Crypter::init_randoms_by_password () {
 	}
 }
 
+
 std::string Crypter::crypt(std::string input) {
 	std::string out = "";
 	for (int i = 0 ; i < input.length() ; i ++) {
@@ -93,4 +94,58 @@ std::string Crypter::crypt(std::string input) {
 	}
 	
 	return out;
+}
+
+std::string Crypter::uncrypt(std::string input) {
+	std::string out = "";
+	for (int i = 0 ; i < input.length() ; i ++) {
+		char chr = input[i];
+		unsigned ord = (short)chr;
+		
+		Random *r = this->random[this->n];
+		if (++this->n >= this->random_number) {
+			this->n = 0;
+		}
+
+		if (this->obfuscate) {
+			if (this->uncrypt_obfuscate_overstep) {
+				if (input.length() > this->uncrypt_obfuscate_overstep) {
+					i += this->uncrypt_obfuscate_overstep;
+					chr = input[i];
+					ord = (short) chr;
+				} else {
+					this->uncrypt_obfuscate_overstep -= input.length();
+					return out;
+				}
+			} else {
+				unsigned nr = r->rand(this->obfuscate);
+				for (int j = 1 ; j <= nr ; j ++) {
+					out += (char) r->rand(256);
+				}
+				
+				i += nr;
+				if (i >= input.length()) {
+					this->uncrypt_obfuscate_overstep += i - input.length();
+					return out;
+				}
+				chr = input[i];
+				ord = (short) chr;				
+			}
+		}
+		
+		for (int j = 0 ; j < this->random_number ; j ++) {
+			short r = (short) this->random[j]->rand(256);
+			ord ^= r;
+			
+		}
+		out += (char) ord;		
+	}
+	
+	return out;
+}
+
+void Crypter::reset() {
+	this->n = 0;
+	this->uncrypt_obfuscate_overstep = 0;
+	this->init_randoms_by_password();
 }
