@@ -2,7 +2,6 @@
 #include <cstring>
 #include "librandom--/random.h"
 
-#include <iostream>
 
 class Crypter {
 	public: 
@@ -14,7 +13,6 @@ class Crypter {
 		std::string password;
 		Random ** random;
 		int random_number;
-		std::string * seeds;
 		int n;
 		int obfuscate;
 		int uncrypt_obfuscate_overstep;
@@ -35,7 +33,6 @@ Crypter::Crypter(std::string password) {
 
 void Crypter::init_randoms_by_password () {
 	int max = ceil (this->password.length()/4.0);
-	this->seeds = (std::string*)malloc(sizeof(std::string)*max);
 	this->random = (Random**)malloc(sizeof(Random*)*max);
 	
 	this->random_number = max;
@@ -46,36 +43,26 @@ void Crypter::init_randoms_by_password () {
 			p += ' ';
 		}
 		const char *s = p.c_str();
-		float t;
-		memcpy(&t, s, 4*sizeof(char));
+		int _t;
+		memcpy(&_t, s, 4*sizeof(char));
 		
 		
+		double t2 = _t ? 1.0 / _t : 0;
 		
-		char buff[256];
-		sprintf(buff, "%.49f", t);
-
-		std::cout << buff << " --- " << t << std::endl;		
+		Random *rnd = new Random(t2);
 		
+		rnd->rand();
 		
-		t = atof(buff);
-		t = t ? 1 / t : 0;
-		
-		
-		
-		Random *rnd = new Random(t);
-		
-		unsigned y;
-		memcpy(&y, s, 4);
-		for (int j = 0 ; j <= y % 256 ; j ++ ) {
+		int y = _t % 256;
+	
+		for (int j = 0 ; j < y ; j ++ ) {
 			rnd->rand();
 		}
 		
-		sprintf(buff, "%.8f", rnd->get_seed());
-		
-		std::string seed = buff;
-		
-		this->seeds[i-1] = seed;
-		this->random[i-1] = rnd;
+		char buff2[256];
+		sprintf(buff2, "%.8g", rnd->get_seed());
+
+		this->random[i-1] = new Random(atof(buff2));
 	}
 }
 
@@ -83,7 +70,7 @@ std::string Crypter::crypt(std::string input) {
 	std::string out = "";
 	for (int i = 0 ; i < input.length() ; i ++) {
 		char chr = input[i];
-		short ord = (short)chr;
+		unsigned ord = (short)chr;
 		
 		Random *r = this->random[this->n];
 		if (++this->n >= this->random_number) {
@@ -98,7 +85,8 @@ std::string Crypter::crypt(std::string input) {
 		}
 		
 		for (int j = 0 ; j < this->random_number ; j ++) {
-			ord ^= (short) this->random[j]->rand(256);
+			short r = (short) this->random[j]->rand(256);
+			ord ^= r;
 			
 		}
 		out += (char) ord;		
