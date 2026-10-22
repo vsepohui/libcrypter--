@@ -1,0 +1,3 @@
+[submodule "librandom--"]
+	path = librandom--
+	url = git@github.com:vsepohui/librandom--.git
