@@ -6,3 +6,9 @@ libcrypter++ - C++ Port of Crypter.pm Perl Package
 git submodule update --init --remote --recursive
 git pull --recurse-submodules 
 ```
+
+# Compile
+
+```
+g++ -o demo demo.cpp crypter++.cpp librandom--/random++.cpp
+```
