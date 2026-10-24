@@ -1,25 +1,7 @@
 #include <string>
 #include <cstring>
-#include "librandom--/random.h"
-
-
-class Crypter {
-	public: 
-		Crypter(std::string password);
-		std::string crypt(std::string input);
-		std::string uncrypt(std::string input);
-		void reset();
-		~Crypter();
-	private:
-		std::string password;
-		Random ** random;
-		int random_number;
-		int n;
-		int obfuscate;
-		int uncrypt_obfuscate_overstep;
-		
-		void init_randoms_by_password();
-};
+#include <math.h>
+#include "crypter++.h"
 
 
 
@@ -29,12 +11,6 @@ Crypter::Crypter(std::string password) {
 	this->obfuscate = 0;
 	this->uncrypt_obfuscate_overstep = 0;
 	this->init_randoms_by_password();
-}
-
-Crypter::~Crypter() {
-	for (int i = 0 ; i < this->random_number ; i ++) {
-		free(&(this->random[i]));
-	}
 }
 
 
